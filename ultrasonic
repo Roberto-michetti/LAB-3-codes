@@ -1,0 +1,45 @@
+/*
+  This program uses an HC-SR04 ultrasonic sensor to measure the distance to an object in front of the sensor.
+  The sensor works by emitting an ultrasonic pulse (via the "Trig" pin) and measuring the time it takes for 
+  the pulse to bounce back and return to the sensor (via the "Echo" pin). Based on the duration of the pulse,
+  the program calculates the distance between the sensor and the object.
+  The goal of this program is to read the sensor's response, calculate the distance, and display the result on
+  the Serial Monitor.
+  This program is an example of **sensor data display**, as it reads data from the ultrasonic sensor and displays
+  the results on the Serial Monitor.
+*/
+const int trigPin = 10;  // Define the pin for the trigger (Trig) of the ultrasonic sensor
+const int echoPin = 13;  // Define the pin for the echo (Echo) of the ultrasonic sensor
+float duration, distance; // Variables to store the duration of the pulse and the calculated distance
+void setup() {
+  Serial.begin(9600);  // Start serial communication at 9600 baud rate for displaying the results on Serial Monitor
+  pinMode(trigPin, OUTPUT);  // Set the Trig pin as an OUTPUT pin
+  pinMode(echoPin, INPUT);   // Set the Echo pin as an INPUT pin
+}
+void loop() {
+  digitalWrite(trigPin, LOW);  // Set the Trig pin to LOW to ensure a clean starting point
+  delayMicroseconds(2);        // Wait for 2 microseconds to ensure the signal is clean
+  
+  digitalWrite(trigPin, HIGH); // Send a HIGH pulse to the Trig pin to trigger the sensor
+  delayMicroseconds(10);       // Wait for 10 microseconds to emit the pulse
+  
+  digitalWrite(trigPin, LOW);  // Turn off the HIGH signal on the Trig pin to stop the pulse emission
+  
+  // Measure the duration of the pulse received by the Echo pin
+  duration = pulseIn(echoPin, HIGH);  // pulseIn measures the time duration the Echo pin stays HIGH
+  // Calculate the distance based on the duration of the pulse
+  distance = (duration / 2) * 0.0343;  // Formula for calculating distance: (duration / 2) * speed of sound (0.0343 cm/us)
+  // Send the result to the Serial Monitor
+  Serial.print("Distance = ");  // Print "Distance = " label to the Serial Monitor
+  
+  if (distance >= 400 || distance <= 2) {  // If the distance is out of range, print "Out of range"
+     Serial.println("Out of range");
+  }
+  else {  // If the distance is within range, print the actual distance in cm
+    Serial.print(distance);  // Print the distance value in centimeters
+    Serial.println(" cm");   // Print "cm" to indicate the units
+    delay(500);  // Wait for 500 milliseconds before taking the next reading
+  }
+  
+  delay(500);  // Wait for another 500 milliseconds before starting the next loop iteration
+}
