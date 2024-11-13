@@ -1,0 +1,70 @@
+/*
+  Blink without Delay
+  Turns on and off a light emitting diode (LED) connected to a digital pin,
+  without using the delay() function. This means that other code can run at the
+  same time without being interrupted by the LED code.
+  The circuit:
+  - Use the onboard LED.
+  - Note: Most Arduinos have an on-board LED you can control. On the UNO, MEGA
+    and ZERO it is attached to digital pin 13, on MKR1000 on pin 6. LED_BUILTIN
+    is set to the correct LED pin independent of which board is used.
+    If you want to know what pin the on-board LED is connected to on your
+    Arduino model, check the Technical Specs of your board at:
+    https://www.arduino.cc/en/Main/Products
+  created 2005
+  by David A. Mellis
+  modified 8 Feb 2010
+  by Paul Stoffregen
+  modified 11 Nov 2013
+  by Scott Fitzgerald
+  modified 9 Jan 2017
+  by Arturo Guadalupi
+  This example code is in the public domain.
+  https://www.arduino.cc/en/Tutorial/BuiltInExamples/BlinkWithoutDelay
+  This code also reads the state of a button connected to pin 13 and sends
+  the state of the button to the Serial Monitor.
+*/
+const int ledPin = LED_BUILTIN;  // the number of the LED pin
+// This constant represents the pin number for the built-in LED. LED_BUILTIN
+// is used to ensure the code works across different Arduino boards.
+int ledState = LOW;  // ledState used to set the LED
+// This variable holds the current state of the LED (on/off).
+unsigned long previousMillis = 0;  // will store the last time LED was updated
+// This variable stores the time of the last LED state change (in milliseconds).
+const long interval = 1000;  // interval at which to blink (milliseconds)
+// The interval defines how often (in milliseconds) the LED will blink.
+int button = 13;  // Button pin defined on pin 13 (where button is connected)
+void setup() {
+  // set the digital pin as output:
+  pinMode(8, OUTPUT);  // Set pin 8 as an output to control the LED.
+  pinMode(button, INPUT_PULLUP);  // Set pin 13 as an input with a pull-up resistor.
+  
+  Serial.begin(9600);  // Initialize serial communication at 9600 baud rate.
+  // This allows data to be sent to the Serial Monitor for debugging and displaying the button state.
+}
+void loop() {
+  // here is where you'd put code that needs to be running all the time.
+  unsigned long currentMillis = millis();  // Get the current time (in milliseconds).
+  // check to see if it's time to blink the LED;
+  // that is, if the difference between the current time and last time you blinked the LED is bigger than
+  // the interval at which you want to blink the LED.
+  if (currentMillis - previousMillis >= interval) {
+    // save the last time you blinked the LED
+    previousMillis = currentMillis;  // Update the previousMillis to the current time.
+    
+    // if the LED is off turn it on and vice-versa:
+    if (ledState == LOW) {
+      ledState = HIGH;  // If the LED is off, turn it on.
+    } else {
+      ledState = LOW;  // If the LED is on, turn it off.
+    }
+    // set the LED with the ledState of the variable:
+    digitalWrite(8, ledState);  // Set the LED to the new state (on/off).
+    
+    // Read the state of the button:
+    int val = !digitalRead(button);  // Read the button state. The '!' inverts the value.
+    
+    // Send the state of the button to the Serial Monitor:
+    Serial.println(val);  // Display the button state (1 for pressed, 0 for not pressed).
+  }
+}
