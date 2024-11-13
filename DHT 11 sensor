@@ -1,0 +1,66 @@
+/*
+  DHT Temperature & Humidity Sensor Example
+  This code reads temperature and humidity values from a DHT series sensor (DHT11, DHT22, or DHT21) using the Adafruit Unified Sensor library.
+  The sensor data is then printed to the Serial Monitor. This is typically used to display real-time environmental data.
+  The code includes:
+  - Reading data from a DHT sensor.
+  - Displaying sensor details such as name, version, and ID.
+  - Displaying real-time temperature (in °C) and humidity (in %).
+  Required Libraries:
+  - DHT Sensor Library: https://github.com/adafruit/DHT-sensor-library
+  - Adafruit Unified Sensor Library: https://github.com/adafruit/Adafruit_Sensor
+  This code works with various types of DHT sensors (DHT11, DHT22, DHT21). The sensor type can be selected by uncommenting the appropriate line.
+*/
+#include <Adafruit_Sensor.h>  // Include the Adafruit Sensor library
+#include <DHT.h>               // Include the DHT sensor library
+#include <DHT_U.h>             // Include the Unified DHT library
+#define DHTPIN 2  // The pin where the DHT sensor is connected to (digital pin 2)
+// Feather HUZZAH ESP8266 note: use pins 3, 4, 5, 12, 13, or 14 (DHT sensor connection).
+// Pin 15 can work but DHT must be disconnected during program upload.
+// Uncomment the type of sensor you are using:
+// DHT11 for DHT 11 sensor, DHT22 for DHT 22 (AM2302), DHT21 for DHT 21 (AM2301)
+#define DHTTYPE DHT11  // Set sensor type as DHT11
+// Define DHT sensor object
+DHT_Unified dht(DHTPIN, DHTTYPE);  // Initialize the sensor with the pin and type
+uint32_t delayMS;  // Variable to hold the delay time between sensor readings
+void setup() {
+  Serial.begin(9600);  // Begin serial communication at 9600 baud rate for output
+  dht.begin();  // Initialize the DHT sensor
+  Serial.println(F("DHTxx Unified Sensor Example"));  // Print message to Serial Monitor
+  // Print the temperature sensor details
+  sensor_t sensor;  // Define a sensor_t structure to hold sensor data
+  dht.temperature().getSensor(&sensor);  // Get temperature sensor details
+  Serial.println(F("------------------------------------"));
+  Serial.println(F("Temperature Sensor"));
+  Serial.print(F("Sensor Type: ")); Serial.println(sensor.name);  // Print sensor name
+  Serial.print(F("Driver Ver:  ")); Serial.println(sensor.version);  // Print sensor driver version
+  Serial.print(F("Unique ID:   ")); Serial.println(sensor.sensor_id);  // Print unique ID
+  Serial.print(F("Max Value:   ")); Serial.print(sensor.max_value); Serial.println(F("°C"));  // Max temperature value
+  Serial.print(F("Min Value:   ")); Serial.print(sensor.min_value); Serial.println(F("°C"));  // Min temperature value
+  Serial.print(F("Resolution:  ")); Serial.print(sensor.resolution); Serial.println(F("°C"));  // Temperature resolution
+  Serial.println(F("------------------------------------"));
+  // Print humidity sensor details
+  dht.humidity().getSensor(&sensor);  // Get humidity sensor details
+  Serial.println(F("Humidity Sensor"));
+  Serial.print(F("Sensor Type: ")); Serial.println(sensor.name);  // Print sensor name
+  Serial.print(F("Driver Ver:  ")); Serial.println(sensor.version);  // Print sensor driver version
+  Serial.print(F("Unique ID:   ")); Serial.println(sensor.sensor_id);  // Print unique ID
+  Serial.print(F("Max Value:   ")); Serial.print(sensor.max_value); Serial.println(F("%"));  // Max humidity value
+  Serial.print(F("Min Value:   ")); Serial.print(sensor.min_value); Serial.println(F("%"));  // Min humidity value
+  Serial.print(F("Resolution:  ")); Serial.print(sensor.resolution); Serial.println(F("%"));  // Humidity resolution
+  Serial.println(F("------------------------------------"));
+  // Set delay between sensor readings based on sensor details (in seconds).
+  delayMS = sensor.min_delay / 1000;  // Convert delay from milliseconds to seconds
+}
+void loop() {
+  delay(delayMS);  // Delay between sensor readings to avoid overload
+  
+  // Get temperature event and print its value
+  sensors_event_t event;  // Define an event structure to store sensor data
+  dht.temperature().getEvent(&event);  // Get the temperature reading
+  if (isnan(event.temperature)) {  // Check if the temperature value is valid
+    Serial.println(F("Error reading temperature!"));  // Print error if the reading fails
+  } else {
+    Serial.print(F("Temperature: "));
+    Serial.print(event.temperatu
+
