@@ -1,0 +1,24 @@
+/*
+  This Arduino code reads an analog voltage from a specified pin (A0 by default) and converts the raw analog value into a corresponding voltage value in volts. The voltage is then displayed on the Serial Monitor. The Arduino reads values from sensors or voltage sources using the analog input pins (0-5V range). This example assumes the use of a simple voltage divider to scale down any higher voltages. The code converts the analog input data (sensor readings) to a real-world voltage and displays it.
+*/
+const int analogPin = A0; // The analog pin where the voltage is being measured (A0 is used in this case).
+const float referenceVoltage = 5.0; // The reference voltage for the Arduino (5V by default).
+void setup() {
+  // Initialize the serial communication at 9600 baud rate for displaying data on the Serial Monitor.
+  Serial.begin(9600);
+}
+void loop() {
+  // Read the raw analog value from the specified pin. The value will range from 0 to 1023.
+  int sensorValue = analogRead(analogPin);
+  
+  // Convert the raw sensor value (0-1023) to a voltage in the range of 0 to referenceVoltage (5V in this case).
+  float voltage = sensorValue * (referenceVoltage / 1023.0);
+  
+  // Display the voltage value in volts on the Serial Monitor.
+  Serial.print("Voltage: ");
+  Serial.print(voltage); // Print the calculated voltage value.
+  Serial.println(" V");  // Print the unit "V" for volts after the value.
+  
+  // Wait for 1 second before taking the next measurement to avoid overloading the Serial Monitor.
+  delay(1000);
+}
