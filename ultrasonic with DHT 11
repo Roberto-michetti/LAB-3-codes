@@ -1,0 +1,99 @@
+/*
+  This program uses an HC-SR04 ultrasonic sensor and a DHT11 (or other DHT type) temperature and humidity sensor
+  to measure the distance to an object and the environmental temperature and humidity. The measurements from both
+  sensors are displayed on the Serial Monitor.
+  The program does the following:
+  - Reads the distance from the ultrasonic sensor and calculates the object distance.
+  - Reads temperature and humidity values from the DHT sensor.
+  - Displays all these values on the Serial Monitor for user inspection.
+  The program primarily focuses on **sensor data display**, as it processes and displays sensor data (distance, temperature, humidity) to the Serial Monitor.
+*/
+#include <Adafruit_Sensor.h>  // Include the Adafruit sensor library for sensor management
+#include <DHT.h>              // Include the DHT sensor library
+#include <DHT_U.h>             // Include the Unified sensor library for DHT
+#define DHTPIN 2     // Define the digital pin connected to the DHT sensor (DHT11, DHT22, etc.)
+// Feather HUZZAH ESP8266 note: use pins 3, 4, 5, 12, 13, or 14 --
+// Pin 15 can work but DHT must be disconnected during program upload.
+// Uncomment the type of sensor in use:
+#define DHTTYPE    DHT11     // Define the sensor type (DHT 11)
+ //#define DHTTYPE    DHT22     // Uncomment this line for DHT 22
+ //#define DHTTYPE    DHT21     // Uncomment this line for DHT 21
+const int trigPin = 10;   // Define the pin for the trigger (Trig) of the ultrasonic sensor
+const int echoPin = 13;   // Define the pin for the echo (Echo) of the ultrasonic sensor
+float duration, distance; // Variables to store the duration of the pulse and the calculated distance
+DHT_Unified dht(DHTPIN, DHTTYPE);  // Create a DHT_Unified object to manage the DHT sensor
+uint32_t delayMS;  // Variable to store the delay between sensor readings
+void setup() {
+  Serial.begin(9600);  // Start serial communication at a baud rate of 9600 for displaying results on Serial Monitor
+  pinMode(trigPin, OUTPUT);  // Set the Trig pin as an OUTPUT pin for emitting the ultrasonic pulse
+  pinMode(echoPin, INPUT);   // Set the Echo pin as an INPUT pin for receiving the reflected pulse
+  
+  dht.begin();  // Initialize the DHT sensor
+  // Print information about the temperature sensor
+  Serial.println(F("DHTxx Unified Sensor Example"));
+  sensor_t sensor;
+  dht.temperature().getSensor(&sensor);  // Get the details of the temperature sensor
+  Serial.println(F("------------------------------------"));
+  Serial.println(F("Temperature Sensor"));
+  Serial.print(F("Sensor Type: ")); Serial.println(sensor.name);  // Print the sensor type
+  Serial.print(F("Driver Ver:  ")); Serial.println(sensor.version);  // Print the sensor driver version
+  Serial.print(F("Unique ID:   ")); Serial.println(sensor.sensor_id);  // Print the unique ID of the sensor
+  Serial.print(F("Max Value:   ")); Serial.print(sensor.max_value); Serial.println(F("°C"));  // Max temperature value
+  Serial.print(F("Min Value:   ")); Serial.print(sensor.min_value); Serial.println(F("°C"));  // Min temperature value
+  Serial.print(F("Resolution:  ")); Serial.print(sensor.resolution); Serial.println(F("°C"));  // Temperature resolution
+  Serial.println(F("------------------------------------"));
+  // Print information about the humidity sensor
+  dht.humidity().getSensor(&sensor);  // Get the details of the humidity sensor
+  Serial.println(F("Humidity Sensor"));
+  Serial.print(F("Sensor Type: ")); Serial.println(sensor.name);  // Print the sensor type
+  Serial.print(F("Driver Ver:  ")); Serial.println(sensor.version);  // Print the sensor driver version
+  Serial.print(F("Unique ID:   ")); Serial.println(sensor.sensor_id);  // Print the unique ID of the sensor
+  Serial.print(F("Max Value:   ")); Serial.print(sensor.max_value); Serial.println(F("%"));  // Max humidity value
+  Serial.print(F("Min Value:   ")); Serial.print(sensor.min_value); Serial.println(F("%"));  // Min humidity value
+  Serial.print(F("Resolution:  ")); Serial.print(sensor.resolution); Serial.println(F("%"));  // Humidity resolution
+  Serial.println(F("------------------------------------"));
+  // Set delay based on sensor details
+  delayMS = sensor.min_delay / 1000;  // Calculate the delay in seconds
+}
+void loop() {
+  delay(delayMS);  // Delay between measurements based on sensor's minimum delay
+  // Send pulse to trigger the ultrasonic sensor
+  digitalWrite(trigPin, LOW);  // Set Trig pin to LOW
+  delayMicroseconds(2);        // Wait for 2 microseconds
+  digitalWrite(trigPin, HIGH); // Send a HIGH pulse to the Trig pin
+  delayMicroseconds(10);       // Wait for 10 microseconds to emit the pulse
+  digitalWrite(trigPin, LOW);  // Set Trig pin back to LOW
+  // Measure the response from the HC-SR04 Echo Pin
+  duration = pulseIn(echoPin, HIGH);  // Measure the time it takes for the pulse to return (Echo pin stays HIGH)
+  distance = (duration / 2) * 0.0343;  // Calculate the distance using the duration (speed of sound = 0.0343 cm/us)
+  // Send results to Serial Monitor
+  Serial.print("Distance = ");  // Print the label "Distance = " on the Serial Monitor
+  if (distance >= 400 || distance <= 2) {  // If the distance is out of range (less than 2 cm or greater than 400 cm)
+     Serial.println("Out of range");  // Print "Out of range" message
+  }
+  else {
+    Serial.print(distance);  // Print the measured distance in centimeters
+    Serial.print(" cm;");  // Print "cm" to indicate the units
+  }
+  // Get temperature and print its value
+  sensors_event_t event;
+  dht.temperature().getEvent(&event);  // Get the temperature reading
+  if (isnan(event.temperature)) {  // Check if the temperature reading is valid
+    Serial.println(F("Error reading temperature!"));  // Print error message if temperature is invalid
+  }
+  else {
+    Serial.print(F("  Temperature: "));  // Print "Temperature: "
+    Serial.print(event.temperature);  // Print the temperature value
+    Serial.print(F("°C;"));  // Print "°C" to indicate the unit
+  }
+  // Get humidity and print its value
+  dht.humidity().getEvent(&event);  // Get the humidity reading
+  if (isnan(event.relative_humidity)) {  // Check if the humidity reading is valid
+    Serial.println(F("Error reading humidity!"));  // Print error message if humidity is invalid
+  }
+  else {
+    Serial.print(F("  Humidity: "));  // Print "Humidity: "
+    Serial.print(event.relative_humidity);  // Print the humidity value
+    Serial.println(F("%"));  // Print "%" to indicate the unit
+  }
+}
