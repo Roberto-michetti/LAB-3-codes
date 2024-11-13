@@ -1,0 +1,32 @@
+/*
+  This program is designed to measure the resistance of a sensor or variable resistor connected to an analog pin (A0) of the Arduino.
+  It uses a voltage divider circuit to calculate the resistance value of the second resistor (R2) based on the input voltage (Vin) and 
+  the voltage measured across the second resistor (Vout).
+  
+  The goal is to read the analog voltage from the voltage divider, calculate the corresponding resistance of R2, and display the result 
+  on the Serial Monitor.
+  The program processes the analog input (sensor data) and calculates the resistance, making it an **analog input processing** and 
+  **sensor data display** program.
+*/
+int analogPin = A0;  // Set the analog input pin (A0) where the sensor or resistor is connected
+int raw = 0;          // Variable to store the raw ADC value from the analog pin
+int Vin = 5;          // Supply voltage (5V for the Arduino)
+float Vout = 0;       // Variable to store the voltage measured across the second resistor (R2)
+float R1 = 100;       // Fixed value for R1 in the voltage divider (100 ohms)
+float R2 = 0;         // Variable to store the calculated value of R2 (the unknown resistor)
+float buffer = 0;     // Buffer variable for intermediate calculations
+void setup(){
+  Serial.begin(9600);  // Initialize serial communication at a baud rate of 9600 for displaying data on the Serial Monitor
+}
+void loop(){
+  raw = analogRead(analogPin);  // Read the analog value from the sensor or resistor connected to pin A0
+  if(raw){  // Check if the raw value is non-zero (this is always true for valid analog readings)
+    buffer = raw * Vin;  // Multiply the raw ADC value by the supply voltage to calculate the input voltage
+    Vout = (buffer) / 1024.0;  // Calculate the voltage across the second resistor (Vout) using the formula (raw / 1024) * Vin
+    buffer = (Vin / Vout) - 1;  // Calculate the intermediate value used to compute R2, based on the voltage divider formula
+    R2 = R1 * buffer;  // Calculate the value of R2 using the formula R2 = R1 * ((Vin / Vout) - 1)
+    Serial.print("R2: ");  // Print the label "R2: " on the Serial Monitor
+    Serial.println(R2);  // Print the calculated value of R2 on the Serial Monitor
+    delay(1000);  // Wait for 1 second before reading the sensor again (for smoother data display)
+  }
+}
