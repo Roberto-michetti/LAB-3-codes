@@ -1,0 +1,34 @@
+	/*
+	  AnalogReadSerial
+	  ----------------
+	  This program reads an analog input from a potentiometer connected to pin A0 of the Arduino.
+	  The potentiometer's center pin is attached to pin A0, and the outside pins are connected to +5V and GND.
+	  
+	  The Arduino reads the value of the potentiometer via the analog input (A0), which gives a value between 0 and 1023.
+	  This value represents the raw sensor data and corresponds to the voltage at the potentiometer's wiper pin.
+	  
+	  The code continuously reads the potentiometer's value in raw form (ranging from 0 to 1023) and outputs this raw bit value to the Serial Monitor.
+	  This allows you to monitor the sensor data in real-time.
+	  
+	  The goal of this code is to provide a simple way to read and display analog input values from a sensor (the potentiometer) for debugging or data visualization.
+	  The values displayed on the Serial Monitor are the raw ADC (Analog-to-Digital Converter) readings from the potentiometer sensor.
+	  
+	  The program runs an infinite loop, repeatedly reading the analog value from the potentiometer and printing the raw value to the Serial Monitor at a rate of once every millisecond.
+	  The data displayed is not in voltage form, but as raw sensor data, making it useful for cases where you need the precise 10-bit ADC value.
+	*/
+	// the setup routine runs once when you press reset:
+	void setup() {
+	  // initialize serial communication at 9600 bits per second:
+	  Serial.begin(9600);  // Opens the serial communication to send data to the Serial Monitor.
+	}
+	// the loop routine runs over and over again forever:
+	void loop() {
+	  // read the input on analog pin 0:
+	  int sensorValue = analogRead(A0);  // Reads the analog value from pin A0 (0-1023), which corresponds to the potentiometer position.
+	  
+	  // print out the raw value (0-1023) you read:
+	  Serial.println(sensorValue);  // Sends the raw sensor value (between 0 and 1023) to the Serial Monitor.
+	  
+	  // delay in between reads for stability:
+	  delay(1);  // Waits for 1 millisecond before taking another reading. This allows the system to stabilize and reduces CPU load.
+	}
